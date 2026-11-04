@@ -2,49 +2,89 @@
 
 ![ATUE — conformidade que se comprova](./atue-banner.webp)
 
-**Conformidade digital para empresas que não têm um departamento jurídico inteiro.**
+**Conformidade digital para empresas que precisam demonstrar confiança.**
+
+LGPD · Segurança da informação · Governança digital
 
 </div>
 
-Pequenas e médias empresas precisam provar conformidade para fechar contratos, responder a clientes e passar por auditorias — mas raramente têm time para isso. O resultado é o de sempre: política desatualizada numa pasta, evidência espalhada em e-mail, e a sensação de que o risco só aparece na hora errada.
+Pequenas e médias empresas enfrentam uma exigência crescente: demonstrar que tratam dados com responsabilidade e adotam boas práticas de segurança da informação. Isso pode ser um obstáculo para fechar contratos, atender exigências de clientes e participar de auditorias.
 
-O ATUE existe para mudar isso. Ele lê a superfície pública do site da empresa, traduz o que encontra em riscos concretos de LGPD e segurança da informação e organiza o que precisa ser feito em um fluxo único. No fim, conformidade deixa de ser um susto e vira um argumento comercial.
+O problema nem sempre é a ausência de iniciativas, mas a dificuldade de identificar riscos, organizar evidências e transformar requisitos técnicos em ações concretas.
+
+O ATUE nasce para simplificar esse processo.
+
+Uma plataforma SaaS B2B concebida para ajudar empresas a compreender sua exposição digital, organizar suas ações de conformidade e demonstrar sua maturidade para clientes, parceiros e auditorias.
 
 ## Como funciona
 
-1. **Avalia** — a empresa informa o domínio e recebe uma leitura inicial dos riscos.
-2. **Organiza** — políticas, evidências e pendências ficam em um só lugar, com prioridade.
-3. **Comprova** — a conformidade é apresentada com clareza para clientes, parceiros e auditorias.
+O ATUE estrutura sua proposta em três etapas:
 
-## Como está desenhado
+**01 — Avaliar**
 
-```text
-atue-web ──▶ atue-core-api ──▶ atue-crawler-service
-                    ├────────▶ atue-ai-service
-                    └────────▶ atue-doc-service
+Analisar a superfície pública do site e identificar possíveis riscos relacionados à LGPD e à segurança da informação.
+
+**02 — Organizar**
+
+Centralizar políticas, evidências e pendências, transformando observações em prioridades e ações acompanháveis.
+
+**03 — Comprovar**
+
+Consolidar informações e evidências em materiais que facilitem a comunicação da maturidade digital da empresa.
+
+## Arquitetura
+
+A solução é organizada em serviços especializados, com responsabilidades delimitadas e comunicação centralizada pelo core:
+
+```mermaid
+flowchart LR
+    WEB[atue-web] --> CORE[atue-core-api]
+    CORE --> CRAWLER[atue-crawler-service]
+    CORE --> AI[atue-ai-service]
+    CORE --> DOC[atue-doc-service]
 ```
 
-Cada serviço tem uma responsabilidade clara e nenhum deles tenta ser mais inteligente do que precisa:
+Cada componente possui uma função específica:
 
-- **atue-core-api** — o orquestrador. Fonte única de verdade, multi-tenancy por organização, autenticação JWT e persistência em SQL Server.
-- **atue-crawler-service** — inspeção stateless da superfície pública do site. Devolve o que observou; não opina.
-- **atue-ai-service** — o ponto mais delicado do sistema. A classificação de risco é determinística, em catálogo fechado; o LLM local escreve apenas o resumo executivo. Risco, artigo da LGPD e recomendação nunca são inventados pelo modelo.
-- **atue-doc-service** — gera os PDFs a partir de templates e entrega por URL presignada. O arquivo nunca é servido direto pela API.
-- **atue-web** — a SPA em React e TypeScript que amarra tudo isso numa experiência que um não-especialista consegue usar.
+- **atue-web** — interface da plataforma, desenvolvida para tornar processos de conformidade acessíveis a usuários não técnicos.
+- **atue-core-api** — núcleo de orquestração, autenticação, gerenciamento de organizações e persistência de dados.
+- **atue-crawler-service** — inspeção stateless da superfície pública de sites.
+- **atue-ai-service** — processamento e síntese das informações. A classificação de riscos utiliza regras determinísticas e catálogo fechado; o LLM local é utilizado exclusivamente para gerar resumos executivos.
+- **atue-doc-service** — geração de documentos PDF a partir de templates e disponibilização dos arquivos por URLs presignadas.
 
-## Onde está o código
+Uma decisão central da arquitetura é manter a geração de texto por IA separada da classificação de riscos. O modelo não determina riscos, não seleciona artigos da LGPD e não inventa recomendações.
 
-| Repositório | O que tem lá |
+## Tecnologias
+
+| Camada | Tecnologias |
 | --- | --- |
-| [atue-web](https://github.com/ATUE-PROA/atue-web) | Frontend: landing, cadastro, envio de documentos, planos e dashboard. |
-| [atue-apresentation](https://github.com/ATUE-PROA/atue-apresentation) | Demonstração estática do fluxo de análise de conformidade. |
+| Frontend | React 19, TypeScript, Tailwind CSS |
+| Core API | ASP.NET Core, .NET 10, SQL Server |
+| Crawler | Go |
+| Inteligência artificial | Python, FastAPI, LLM local |
+| Infraestrutura | Docker, armazenamento compatível com S3 |
 
-Os serviços de backend seguem privados durante o MVP. Cada repositório documenta como rodar o projeto e as convenções de engenharia que seguimos.
+## Repositórios
 
-## Stack
+| Repositório | Descrição |
+| --- | --- |
+| [atue-web](https://github.com/ATUE-PROA/atue-web) | Aplicação frontend da plataforma. |
+| [atue-apresentation](https://github.com/ATUE-PROA/atue-apresentation) | Demonstração do fluxo de análise de conformidade. |
 
-React 19, TypeScript e Tailwind no frontend; ASP.NET Core (.NET 10) e SQL Server no core; Go no crawler; Python e FastAPI na camada de IA; Docker e armazenamento compatível com S3 na infraestrutura.
+Os serviços de backend permanecem em repositórios privados durante o desenvolvimento do MVP.
 
-## Status
+## Status do projeto
 
-MVP em desenvolvimento para o Demoday. A versão atual usa dados simulados: nenhuma conta real é criada, nenhum arquivo é armazenado e não há cobrança.
+<sub>EM DESENVOLVIMENTO · MVP · DEMODAY</sub>
+
+O projeto está em fase de desenvolvimento e preparação para o Demoday. A demonstração atual utiliza dados simulados e não realiza operações reais de cadastro, armazenamento de arquivos ou cobrança.
+
+O objetivo desta etapa é apresentar a proposta de valor, a experiência do produto e as decisões de arquitetura que fundamentam sua evolução.
+
+<div align="center">
+
+**ATUE**
+
+Entender. Organizar. Comprovar.
+
+</div>
