@@ -1,36 +1,22 @@
 <div align="center">
 
-# ATUE
+![ATUE — conformidade que se comprova](./atue-banner.webp)
 
-**Conformidade digital para pequenas e médias empresas.**
-
-Entenda os riscos do seu site, organize evidências e comprove conformidade com a LGPD.
-
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
-![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
-![Go](https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
-![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?logo=microsoftsqlserver&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+**Conformidade digital para empresas que não têm um departamento jurídico inteiro.**
 
 </div>
 
-## O que é o ATUE
+Pequenas e médias empresas precisam provar conformidade para fechar contratos, responder a clientes e passar por auditorias — mas raramente têm time para isso. O resultado é o de sempre: política desatualizada numa pasta, evidência espalhada em e-mail, e a sensação de que o risco só aparece na hora errada.
 
-O ATUE é uma plataforma B2B SaaS que ajuda pequenas e médias empresas a **entender, organizar e comprovar** sua conformidade digital. A plataforma parte de uma leitura do domínio da empresa — o que está exposto, quais requisitos de LGPD e segurança da informação estão em jogo — e transforma esse diagnóstico em documentos, evidências e pendências organizadas em um fluxo único.
-
-O objetivo é tornar conformidade um diferencial comercial: menos surpresa em auditorias, mais transparência para clientes e parceiros.
-
-> **Projeto em desenvolvimento para o Demoday.** A versão atual é um MVP com dados simulados: nenhuma conta real é criada, nenhum arquivo é armazenado e não há cobrança.
+O ATUE existe para mudar isso. Ele lê a superfície pública do site da empresa, traduz o que encontra em riscos concretos de LGPD e segurança da informação e organiza o que precisa ser feito em um fluxo único. No fim, conformidade deixa de ser um susto e vira um argumento comercial.
 
 ## Como funciona
 
-1. **Avalia** — informe seu domínio e receba uma leitura inicial dos riscos e oportunidades.
-2. **Organiza** — políticas, evidências e pendências em um fluxo simples.
-3. **Comprova** — apresente sua conformidade com clareza para clientes e parceiros.
+1. **Avalia** — a empresa informa o domínio e recebe uma leitura inicial dos riscos.
+2. **Organiza** — políticas, evidências e pendências ficam em um só lugar, com prioridade.
+3. **Comprova** — a conformidade é apresentada com clareza para clientes, parceiros e auditorias.
 
-## Arquitetura
+## Como está desenhado
 
 ```text
 atue-web ──▶ atue-core-api ──▶ atue-crawler-service
@@ -38,25 +24,27 @@ atue-web ──▶ atue-core-api ──▶ atue-crawler-service
                     └────────▶ atue-doc-service
 ```
 
-- **atue-core-api** — orquestrador e fonte única de verdade: multi-tenancy por organização, autenticação JWT, persistência em SQL Server com Entity Framework Core.
-- **atue-crawler-service** — worker stateless que inspeciona HTML e headers públicos de um domínio e devolve os dados brutos observados, sem regra de negócio.
-- **atue-ai-service** — tradução técnico→jurídica: classifica achados em um catálogo determinístico e usa um LLM local apenas para o resumo executivo. Riscos, artigos da LGPD e recomendações nunca vêm do modelo.
-- **atue-doc-service** — geração de PDFs a partir de templates e entrega por URL presignada.
-- **atue-web** — SPA em React 19, TypeScript e Tailwind CSS v4.
+Cada serviço tem uma responsabilidade clara e nenhum deles tenta ser mais inteligente do que precisa:
 
-## Repositórios públicos
+- **atue-core-api** — o orquestrador. Fonte única de verdade, multi-tenancy por organização, autenticação JWT e persistência em SQL Server.
+- **atue-crawler-service** — inspeção stateless da superfície pública do site. Devolve o que observou; não opina.
+- **atue-ai-service** — o ponto mais delicado do sistema. A classificação de risco é determinística, em catálogo fechado; o LLM local escreve apenas o resumo executivo. Risco, artigo da LGPD e recomendação nunca são inventados pelo modelo.
+- **atue-doc-service** — gera os PDFs a partir de templates e entrega por URL presignada. O arquivo nunca é servido direto pela API.
+- **atue-web** — a SPA em React e TypeScript que amarra tudo isso numa experiência que um não-especialista consegue usar.
 
-| Repositório                                                                  | Descrição                                                                 |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [atue-web](https://github.com/ATUE-PROA/atue-web)                           | Frontend SPA: landing, cadastro, envio de documentos, planos e dashboard. |
-| [atue-apresentation](https://github.com/ATUE-PROA/atue-apresentation)       | Demonstração estática do fluxo de análise de conformidade.                |
+## Onde está o código
+
+| Repositório | O que tem lá |
+| --- | --- |
+| [atue-web](https://github.com/ATUE-PROA/atue-web) | Frontend: landing, cadastro, envio de documentos, planos e dashboard. |
+| [atue-apresentation](https://github.com/ATUE-PROA/atue-apresentation) | Demonstração estática do fluxo de análise de conformidade. |
+
+Os serviços de backend seguem privados durante o MVP. Cada repositório documenta como rodar o projeto e as convenções de engenharia que seguimos.
 
 ## Stack
 
-**Frontend:** React 19 · TypeScript · Vite · Tailwind CSS v4 · shadcn/ui · React Router · Recharts
+React 19, TypeScript e Tailwind no frontend; ASP.NET Core (.NET 10) e SQL Server no core; Go no crawler; Python e FastAPI na camada de IA; Docker e armazenamento compatível com S3 na infraestrutura.
 
-**Backend:** ASP.NET Core (.NET 10) · C# 13 · Entity Framework Core · SQL Server · Go · Python / FastAPI
+## Status
 
-**Infra:** Docker · MinIO/S3 para armazenamento de documentos
-
-Cada repositório tem seu próprio `README.md` com instruções de execução e um `AGENTS.md` com as convenções de engenharia do projeto.
+MVP em desenvolvimento para o Demoday. A versão atual usa dados simulados: nenhuma conta real é criada, nenhum arquivo é armazenado e não há cobrança.
